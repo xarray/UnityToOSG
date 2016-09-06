@@ -30,6 +30,8 @@ public class BundleMaterial : BundleResource
                 
                 textures.Add( BundleTexture.RegisterTexture(subtexture, propName) );
                 textureUnits.Add( BundleTexture.GetSuggestedUnit(propName) );
+                textureScales.Add( material.GetTextureScale(propName) );
+                textureOffsets.Add( material.GetTextureOffset(propName) );
             }
         }
         
@@ -38,6 +40,8 @@ public class BundleMaterial : BundleResource
         {
             textures.Add( BundleTexture.RegisterTexture(material.mainTexture, "_MainTex") );
             textureUnits.Add( BundleTexture.GetSuggestedUnit("_MainTex") );
+            textureScales.Add( unityMaterial.mainTextureScale );
+            textureOffsets.Add( unityMaterial.mainTextureOffset );
         }
     }
 
@@ -103,8 +107,6 @@ public class BundleMaterial : BundleResource
         var sceneData = new SceneMaterial();
         sceneData.name = name;
         sceneData.shader = shader.name;
-        sceneData.mainTextureOffset = unityMaterial.mainTextureOffset;
-        sceneData.mainTextureScale = unityMaterial.mainTextureScale;
         sceneData.passCount = unityMaterial.passCount;
         sceneData.renderQueue = unityMaterial.renderQueue;
         
@@ -117,6 +119,13 @@ public class BundleMaterial : BundleResource
             sceneData.textureUnits = new int[textureUnits.Count];
             for ( int i=0; i<textureUnits.Count; i++ )
                 sceneData.textureUnits[i] = textureUnits[i];
+            
+            sceneData.textureTilingOffsets = new Vector4[textureUnits.Count];
+            for ( int i=0; i<textureUnits.Count; i++ )
+            {
+                Vector2 sc = textureScales[i], of = textureOffsets[i];
+                sceneData.textureTilingOffsets[i] = new Vector4(sc.x, sc.y, of.x, of.y);
+            }
         }
 
         if ( unityMaterial.shaderKeywords.Length>0 )
@@ -143,6 +152,8 @@ public class BundleMaterial : BundleResource
     
     public List<BundleTexture> textures = new List<BundleTexture>();
     public List<int> textureUnits = new List<int>();
+    public List<Vector2> textureScales = new List<Vector2>();
+    public List<Vector2> textureOffsets = new List<Vector2>();
     public BundleShader shader;
 }
 

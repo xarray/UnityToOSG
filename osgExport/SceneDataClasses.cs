@@ -28,8 +28,7 @@ public class SceneMaterial
     public string shader;
     public int[] textureIDs;
     public int[] textureUnits;
-    public Vector2 mainTextureOffset;
-    public Vector2 mainTextureScale;
+    public Vector4[] textureTilingOffsets;
     public int passCount;
     public int renderQueue;
     public string[] shaderKeywords;

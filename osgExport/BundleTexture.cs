@@ -16,8 +16,9 @@ public class BundleTexture : BundleResource
         if ( propName=="_MainTex" ) suggestedUnit = 0;
         //else if ( propName=="_LightMap" ) suggestedUnit = 1;
         else if ( propName=="_BumpMap" ) suggestedUnit = 2;
-        else if ( propName=="_Specular" ) suggestedUnit = 3;
-        else if ( propName=="_Illum" ) suggestedUnit = 4;
+        else if ( propName=="_Illum" ) suggestedUnit = 3;
+        else if ( propName=="_Specular" ) suggestedUnit = 4;
+        //else if ( propName=="_Cube" ) suggestedUnit = 5;
         else Debug.LogWarning("Unassiagned texture property: " + propName);
         return suggestedUnit;
     }

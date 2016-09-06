@@ -9,6 +9,14 @@
 #include <osgViewer/ViewerEventHandlers>
 #include <osgViewer/Viewer>
 
+static const char* commonVertCode = {
+    "void main() {\n"
+    "    gl_Position = ftransform();\n"
+    "    gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;\n"
+    "    gl_TexCoord[1] = gl_TextureMatrix[1] * gl_MultiTexCoord1;\n"
+    "}\n"
+};
+
 static const char* commonFragCode = {
     "uniform sampler2D mainTexture;\n"
     "uniform sampler2D lightTexture;\n"
@@ -30,10 +38,10 @@ osg::Texture* createFallbackTexture( const osg::Vec4ub& color )
     *(osg::Vec4ub*)image->data() = color;
     
     osg::ref_ptr<osg::Texture2D> fallbackTexture = new osg::Texture2D( image.get() );
-    fallbackTexture->setWrap( osg::Texture2D::WRAP_S,osg::Texture2D::REPEAT );
-    fallbackTexture->setWrap( osg::Texture2D::WRAP_T,osg::Texture2D::REPEAT );
-    fallbackTexture->setFilter( osg::Texture2D::MIN_FILTER,osg::Texture2D::NEAREST );
-    fallbackTexture->setFilter( osg::Texture2D::MAG_FILTER,osg::Texture2D::NEAREST );
+    fallbackTexture->setWrap( osg::Texture2D::WRAP_S, osg::Texture2D::REPEAT );
+    fallbackTexture->setWrap( osg::Texture2D::WRAP_T, osg::Texture2D::REPEAT );
+    fallbackTexture->setFilter( osg::Texture2D::MIN_FILTER, osg::Texture2D::NEAREST );
+    fallbackTexture->setFilter( osg::Texture2D::MAG_FILTER, osg::Texture2D::NEAREST );
     return fallbackTexture.release();
 }
 
@@ -54,6 +62,7 @@ int main( int argc, char** argv )
     ss->setTextureAttributeAndModes( 4, createFallbackTexture(osg::Vec4ub(0, 0, 0, 0)) );  // illumince map
     
     osg::ref_ptr<osg::Program> program = new osg::Program;
+    program->addShader( new osg::Shader(osg::Shader::VERTEX, commonVertCode) );
     program->addShader( new osg::Shader(osg::Shader::FRAGMENT, commonFragCode) );
     ss->setAttributeAndModes( program.get() );
     ss->addUniform( new osg::Uniform("mainTexture", (int)0) );

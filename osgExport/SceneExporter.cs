@@ -110,6 +110,7 @@ public class SceneExporter : ScriptableObject
             
             // Should convert left-handed to right-handed coordinates
             Matrix4x4 m = Matrix4x4.TRS(st.localPosition, st.localRotation, st.localScale);
+            m = Matrix4x4.Scale(new Vector3(-1.0f, 1.0f, 1.0f)) * m;
             osgData += spaces + "    " + m[0, 0] + " " + m[1, 0] + " " + m[2, 0] + " " + m[3, 0] + "\n"
                      + spaces + "    " + m[0, 1] + " " + m[1, 1] + " " + m[2, 1] + " " + m[3, 1] + "\n"
                      + spaces + "    " + m[0, 2] + " " + m[1, 2] + " " + m[2, 2] + " " + m[3, 2] + "\n"
