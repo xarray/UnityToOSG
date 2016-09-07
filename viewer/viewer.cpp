@@ -2,33 +2,41 @@
 #include <osg/Texture2D>
 #include <osg/Geode>
 #include <osg/MatrixTransform>
-#include <osgDB/ReadFile>
-#include <osgDB/WriteFile>
+#include <osgDB/FileNameUtils>
+#include <osgDB/FileUtils>
 #include <osgGA/StateSetManipulator>
 #include <osgGA/TrackballManipulator>
 #include <osgViewer/ViewerEventHandlers>
 #include <osgViewer/Viewer>
+#include "user_data_classes.h"
 
-static const char* commonVertCode = {
-    "void main() {\n"
-    "    gl_Position = ftransform();\n"
-    "    gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;\n"
-    "    gl_TexCoord[1] = gl_TextureMatrix[1] * gl_MultiTexCoord1;\n"
-    "}\n"
-};
-
-static const char* commonFragCode = {
-    "uniform sampler2D mainTexture;\n"
-    "uniform sampler2D lightTexture;\n"
-    "uniform sampler2D normalTexture;\n"
-    "uniform sampler2D specularTexture;\n"
-    "uniform sampler2D emissionTexture;\n"
+class UserDataFinder : public osg::NodeVisitor
+{
+public:
+    UserDataFinder() : osg::NodeVisitor(osg::NodeVisitor::TRAVERSE_ALL_CHILDREN) {}
     
-    "void main() {\n"
-    "    vec4 color = texture2D(mainTexture, gl_TexCoord[0].st);\n"
-    "    vec4 light = texture2D(lightTexture, gl_TexCoord[1].st);\n"
-    "    gl_FragColor = color * light;\n"
-    "}\n"
+    virtual void apply( osg::Node& node )
+    {
+        applyStateSet( node.getStateSet() );
+        traverse( node );
+    }
+
+    virtual void apply( osg::Geode& node )
+    {
+        for ( unsigned int i=0; i<node.getNumDrawables(); ++i )
+            applyStateSet( node.getDrawable(i)->getStateSet() );
+        applyStateSet( node.getStateSet() );
+        traverse( node );
+    }
+
+    void applyStateSet( osg::StateSet* ss )
+    {
+        ShaderDataProxy* sd = dynamic_cast<ShaderDataProxy*>(
+            ss ? ss->getAttribute(osg::StateAttribute::PROGRAM) : NULL);
+        if ( sd ) shaderDataMap[sd] = ss;
+    }
+    
+    ShaderDataProxyMap shaderDataMap;
 };
 
 osg::Texture* createFallbackTexture( const osg::Vec4ub& color )
@@ -50,26 +58,35 @@ int main( int argc, char** argv )
     osg::ArgumentParser arguments( &argc, argv );
     osgViewer::Viewer viewer;
     
+    std::string databasePath = osgDB::getFilePath(arguments[0]);
+    if ( databasePath.empty() ) databasePath = ".";
+    
     // Build the scene graph
-    osg::ref_ptr<osg::Group> root = new osg::Group;
+    osg::ref_ptr<osg::MatrixTransform> root = new osg::MatrixTransform;
+    root->setMatrix( osg::Matrix::scale(-1.0, 1.0, 1.0) * osg::Matrix::rotate(osg::PI_2, osg::X_AXIS) );  // FIXME
     root->addChild( osgDB::readNodeFiles(arguments) );
     
     osg::StateSet* ss = root->getOrCreateStateSet();
     ss->setTextureAttributeAndModes( 0, createFallbackTexture(osg::Vec4ub(255, 255, 255, 255)) );  // main texture
     ss->setTextureAttributeAndModes( 1, createFallbackTexture(osg::Vec4ub(255, 255, 255, 255)) );  // light map
     ss->setTextureAttributeAndModes( 2, createFallbackTexture(osg::Vec4ub(0, 0, 0, 0)) );  // bump map
-    ss->setTextureAttributeAndModes( 3, createFallbackTexture(osg::Vec4ub(0, 0, 0, 255)) );  // specular map
-    ss->setTextureAttributeAndModes( 4, createFallbackTexture(osg::Vec4ub(0, 0, 0, 0)) );  // illumince map
+    ss->setTextureAttributeAndModes( 3, createFallbackTexture(osg::Vec4ub(0, 0, 0, 0)) );  // illumince map
+    ss->setTextureAttributeAndModes( 4, createFallbackTexture(osg::Vec4ub(0, 0, 0, 255)) );  // specular map
     
     osg::ref_ptr<osg::Program> program = new osg::Program;
-    program->addShader( new osg::Shader(osg::Shader::VERTEX, commonVertCode) );
-    program->addShader( new osg::Shader(osg::Shader::FRAGMENT, commonFragCode) );
+    program->addShader( osgDB::readShaderFile(osg::Shader::VERTEX, databasePath + "/shaders/Default.vert") );
+    program->addShader( osgDB::readShaderFile(osg::Shader::FRAGMENT, databasePath + "/shaders/Default.frag") );
     ss->setAttributeAndModes( program.get() );
     ss->addUniform( new osg::Uniform("mainTexture", (int)0) );
     ss->addUniform( new osg::Uniform("lightTexture", (int)1) );
     ss->addUniform( new osg::Uniform("normalTexture", (int)2) );
     ss->addUniform( new osg::Uniform("specularTexture", (int)3) );
     ss->addUniform( new osg::Uniform("emissionTexture", (int)4) );
+    
+    // Traverse the scene and handle all user-data classes
+    UserDataFinder udf;
+    root->accept( udf );
+    applyUserShaders( udf.shaderDataMap, databasePath );
     
     // Start the viewer
     viewer.addEventHandler( new osgGA::StateSetManipulator(viewer.getCamera()->getOrCreateStateSet()) );

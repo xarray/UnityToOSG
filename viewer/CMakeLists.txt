@@ -46,6 +46,18 @@ LINK_DIRECTORIES(${OPENSCENEGRAPH_LIB_DIR})
 
 SET(SOURCE_FILES
     viewer.cpp
+    shader_data.cpp
+    utilities.cpp
+    user_data_classes.h
+)
+
+SET(COMMON_SHADER_FILES
+    Default.vert
+    Default.frag
+)
+
+SET(LEGACY_SHADER_FILES
+    Legacy_Shaders/Bumped_Diffuse.frag
 )
 
 ADD_EXECUTABLE(osgUnitySceneViewer ${SOURCE_FILES})
@@ -64,3 +76,5 @@ TARGET_LINK_LIBRARIES(osgUnitySceneViewer
     debug OpenThreads${CMAKE_DEBUG_POSTFIX}  optimized OpenThreads
 )
 INSTALL(TARGETS osgUnitySceneViewer RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+INSTALL(FILES ${COMMON_SHADER_FILES} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/shaders)
+INSTALL(FILES ${LEGACY_SHADER_FILES} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/shaders/Legacy_Shaders)

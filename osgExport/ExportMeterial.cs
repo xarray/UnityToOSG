@@ -56,7 +56,7 @@ public class MaterialExporter
             SceneMaterial material = sceneData.resources.GetMaterial(smr.materials[i]);
             if ( material.textureIDs==null ) continue;
             
-            string shaderData = spaces + "  nwTools::ShaderData " + material.name + " {\n"
+            string shaderData = spaces + "  nwTools::ShaderData {\n"
                               + spaces + "    ShaderName \"" + material.shader + "\"\n";
             for ( int j=0; j<material.textureIDs.Length; ++j )
             {
@@ -64,7 +64,7 @@ public class MaterialExporter
                 SceneTexture texture = sceneData.resources.GetTexture(texID, false);
                 if ( texture==null || unit<0 ) continue;
                 
-                shaderData += spaces + "    Texture " + unit + " \"" + texture.name + "\""
+                shaderData += spaces + "    Texture" + unit + " \"" + texture.name + "\""
                             + " \"" + texture.path + "\"\n";
                 if ( i>0 ) continue;  // For multi-material case, record more materials to ShaderData
                 
