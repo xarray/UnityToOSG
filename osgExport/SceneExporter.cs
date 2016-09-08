@@ -158,6 +158,18 @@ public class SceneExporter : ScriptableObject
                 //SceneMeshCollider smc = (SceneMeshCollider)component;
                 // TODO
             }
+            else if ( component.type=="Terrain" )
+            {
+                SceneTerrain st = (SceneTerrain)component;
+                osgSubData += spaces + "  Geode {\n"
+                            + ExportCommonAttr(st.type, spaces + "  ")
+                            + subSpaces + "num_drawables 1\n";
+                osgSubData += subSpaces + "nwTools::Terrain {\n"
+                            + TerrainExporter.ExportTerrain(ref sceneData, ref st, subSpaces + "  ")
+                            + subSpaces + "}\n";
+                osgSubData += spaces + "  }\n";
+                numChildren++;
+            }
             else if ( component.type=="MeshRenderer" )
             {
                 SceneMeshRenderer smr = (SceneMeshRenderer)component;

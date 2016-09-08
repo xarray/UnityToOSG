@@ -27,25 +27,28 @@ public class BundleMeshCollider : BundleComponent
         if ( unityMeshCollider!=null )
         {
             Mesh unityMesh = unityMeshCollider.sharedMesh;
-            sceneData.mesh = new SceneMesh();
-            sceneData.mesh.name = unityMesh.name;
-
-            // submeshes
-            sceneData.mesh.subMeshCount = unityMesh.subMeshCount;
-            sceneData.mesh.triangles = new int[unityMesh.subMeshCount][];
-            for ( int i=0; i<unityMesh.subMeshCount;i++ )
+            if ( unityMesh!=null )
             {
-                sceneData.mesh.triangles[i] = unityMesh.GetTriangles(i);
-            }
+                sceneData.mesh = new SceneMesh();
+                sceneData.mesh.name = unityMesh.name;
 
-            // Vertices
-            sceneData.mesh.vertexCount = unityMesh.vertexCount;
-            sceneData.mesh.vertexPositions = unityMesh.vertices;
-            sceneData.mesh.vertexUV = unityMesh.uv;
-            sceneData.mesh.vertexUV2 = unityMesh.uv2;
-            sceneData.mesh.vertexColors = unityMesh.colors;
-            sceneData.mesh.vertexNormals = unityMesh.normals;
-            sceneData.mesh.vertexTangents = unityMesh.tangents;
+                // submeshes
+                sceneData.mesh.subMeshCount = unityMesh.subMeshCount;
+                sceneData.mesh.triangles = new int[unityMesh.subMeshCount][];
+                for ( int i=0; i<unityMesh.subMeshCount;i++ )
+                {
+                    sceneData.mesh.triangles[i] = unityMesh.GetTriangles(i);
+                }
+
+                // Vertices
+                sceneData.mesh.vertexCount = unityMesh.vertexCount;
+                sceneData.mesh.vertexPositions = unityMesh.vertices;
+                sceneData.mesh.vertexUV = unityMesh.uv;
+                sceneData.mesh.vertexUV2 = unityMesh.uv2;
+                sceneData.mesh.vertexColors = unityMesh.colors;
+                sceneData.mesh.vertexNormals = unityMesh.normals;
+                sceneData.mesh.vertexTangents = unityMesh.tangents;
+            }
         }
         return sceneData;
     }

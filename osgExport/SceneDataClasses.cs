@@ -176,9 +176,6 @@ public class SceneTerrain : SceneComponent
 {
     public int heightmapHeight;
     public int heightmapWidth;
-    public int heightmapResolution;
-
-    public Vector3 heightmapScale;
     public Vector3 size;
 
     public int alphamapWidth;
@@ -187,6 +184,11 @@ public class SceneTerrain : SceneComponent
 
     public SceneTexture heightmapTexture;
     public SceneTexture alphamapTexture;
+    
+    public int[] textureIDs;
+    public Vector4[] textureTilingOffsets;
+    public int lightmapIndex;
+    public Vector4 lightmapTilingOffset;
 }
 
 public class SceneResources

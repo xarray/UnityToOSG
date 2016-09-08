@@ -6,6 +6,7 @@
 #include <osgDB/FileUtils>
 #include <osgGA/StateSetManipulator>
 #include <osgGA/TrackballManipulator>
+#include <osgUtil/TangentSpaceGenerator>
 #include <osgViewer/ViewerEventHandlers>
 #include <osgViewer/Viewer>
 #include "user_data_classes.h"
@@ -24,7 +25,22 @@ public:
     virtual void apply( osg::Geode& node )
     {
         for ( unsigned int i=0; i<node.getNumDrawables(); ++i )
+        {
+            osg::Geometry* geom = node.getDrawable(i)->asGeometry();
             applyStateSet( node.getDrawable(i)->getStateSet() );
+            if ( !geom ) continue;
+            
+            TerrainDataProxy* td = dynamic_cast<TerrainDataProxy*>(geom);
+            if ( !td )
+            {
+                osg::ref_ptr<osgUtil::TangentSpaceGenerator> tsg = new osgUtil::TangentSpaceGenerator;
+                tsg->generate( geom );
+                if ( !geom->getVertexAttribArray(6) && tsg->getTangentArray() )
+                    geom->setVertexAttribArray( 6, tsg->getTangentArray(), osg::Array::BIND_PER_VERTEX );
+            }
+            else
+                terrainDataMap[td] = &node;
+        }
         applyStateSet( node.getStateSet() );
         traverse( node );
     }
@@ -37,6 +53,7 @@ public:
     }
     
     ShaderDataProxyMap shaderDataMap;
+    TerrainDataProxyMap terrainDataMap;
 };
 
 osg::Texture* createFallbackTexture( const osg::Vec4ub& color )
@@ -61,6 +78,10 @@ int main( int argc, char** argv )
     std::string databasePath = osgDB::getFilePath(arguments[0]);
     if ( databasePath.empty() ) databasePath = ".";
     
+    LightUniforms sceneLight;
+    sceneLight.color = new osg::Uniform("lightColor", osg::Vec3(1.0f, 1.0f, 0.9f));
+    sceneLight.direction = new osg::Uniform("lightDirection", osg::Vec3(0.5f, 0.5f, -0.5f));
+    
     // Build the scene graph
     osg::ref_ptr<osg::MatrixTransform> root = new osg::MatrixTransform;
     root->setMatrix( osg::Matrix::scale(-1.0, 1.0, 1.0) * osg::Matrix::rotate(osg::PI_2, osg::X_AXIS) );  // FIXME
@@ -76,17 +97,21 @@ int main( int argc, char** argv )
     osg::ref_ptr<osg::Program> program = new osg::Program;
     program->addShader( osgDB::readShaderFile(osg::Shader::VERTEX, databasePath + "/shaders/Default.vert") );
     program->addShader( osgDB::readShaderFile(osg::Shader::FRAGMENT, databasePath + "/shaders/Default.frag") );
+    program->addBindAttribLocation( "tangent", 6 );
     ss->setAttributeAndModes( program.get() );
     ss->addUniform( new osg::Uniform("mainTexture", (int)0) );
     ss->addUniform( new osg::Uniform("lightTexture", (int)1) );
     ss->addUniform( new osg::Uniform("normalTexture", (int)2) );
     ss->addUniform( new osg::Uniform("specularTexture", (int)3) );
     ss->addUniform( new osg::Uniform("emissionTexture", (int)4) );
+    ss->addUniform( sceneLight.color.get() );
+    ss->addUniform( sceneLight.direction.get() );
     
     // Traverse the scene and handle all user-data classes
     UserDataFinder udf;
     root->accept( udf );
     applyUserShaders( udf.shaderDataMap, databasePath );
+    applyUserTerrains( udf.terrainDataMap, databasePath );
     
     // Start the viewer
     viewer.addEventHandler( new osgGA::StateSetManipulator(viewer.getCamera()->getOrCreateStateSet()) );

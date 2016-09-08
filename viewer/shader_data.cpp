@@ -27,6 +27,7 @@ void applyUserShaders( ShaderDataProxyMap& sdMap, const std::string& dbPath )
             osg::ref_ptr<osg::Program> program = new osg::Program;
             program->addShader( osgDB::readShaderFile(osg::Shader::VERTEX, vertFile) );
             program->addShader( osgDB::readShaderFile(osg::Shader::FRAGMENT, fragFile) );
+            program->addBindAttribLocation( "tangent", 6 );
             s_sharedShaderPrograms[name] = program;
         }
         itr->second->removeAttribute( itr->first );

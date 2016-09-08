@@ -6,9 +6,19 @@ uniform sampler2D specularTexture;
 uniform sampler2D emissionTexture;
 uniform samplerCube reflectTexture;
 
+uniform vec3 lightColor, lightDirection;
+uniform mat4 osg_ViewMatrix;
+
+varying vec4 eyeVec;
+varying vec3 normalVec, tangentVec, binormalVec;
+
 void main()
 {
     vec4 color = texture2D(mainTexture, gl_TexCoord[0].st);
     vec4 light = texture2D(lightTexture, gl_TexCoord[1].st);
-    gl_FragColor = color * light;
+    
+    vec3 lightDir = normalize(mat3(osg_ViewMatrix) * lightDirection);
+    float diff = max(0.0, dot(normalVec.xyz, lightDir));
+    gl_FragColor.rgb = color.rgb * light.rgb;
+    gl_FragColor.a = color.a;
 }

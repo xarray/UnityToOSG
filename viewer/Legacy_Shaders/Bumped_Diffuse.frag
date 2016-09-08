@@ -1,14 +1,28 @@
 varying vec4 gl_TexCoord[gl_MaxTextureCoords];
 uniform sampler2D mainTexture;
-uniform sampler2D lightTexture;
 uniform sampler2D normalTexture;
-uniform sampler2D specularTexture;
-uniform sampler2D emissionTexture;
-uniform samplerCube reflectTexture;
+uniform vec3 lightColor, lightDirection;
+uniform mat4 osg_ViewMatrix;
+
+varying vec4 eyeVec;
+varying vec3 normalVec, tangentVec, binormalVec;
 
 void main()
 {
-    vec4 color = texture2D(mainTexture, gl_TexCoord[0].st);
-    vec4 light = texture2D(lightTexture, gl_TexCoord[1].st);
-    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0) * color;  // just test
+    vec2 uv = gl_TexCoord[0].st;
+    vec4 color = texture2D(mainTexture, uv);
+    vec4 normal = texture2D(normalTexture, uv);
+    
+    vec3 lightDir = normalize(mat3(osg_ViewMatrix) * lightDirection);
+    float diff = max(0.0, dot(normalVec.xyz, lightDir));
+    gl_FragColor.rgb = color.rgb * lightColor * diff;
+    gl_FragColor.a = color.a;
 }
+
+// Legacy Shaders/Bumped Specular
+// Legacy Shaders/Reflective/Bumped Specular
+// Legacy Shaders/Transparent/Diffuse
+// Legacy Shaders/Transparent/Cutout/Diffuse
+// Legacy Shaders/Transparent/Bumped Diffuse
+// Legacy Shaders/Transparent/Cutout/Bumped Specular
+// Legacy Shaders/Reflective/Bumped Diffuse
