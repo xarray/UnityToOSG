@@ -6,6 +6,7 @@
 #include <osgDB/FileUtils>
 #include <osgGA/StateSetManipulator>
 #include <osgGA/TrackballManipulator>
+#include <osgGA/TerrainManipulator>
 #include <osgUtil/TangentSpaceGenerator>
 #include <osgViewer/ViewerEventHandlers>
 #include <osgViewer/Viewer>
@@ -117,6 +118,7 @@ int main( int argc, char** argv )
     viewer.addEventHandler( new osgGA::StateSetManipulator(viewer.getCamera()->getOrCreateStateSet()) );
     viewer.addEventHandler( new osgViewer::StatsHandler );
     viewer.addEventHandler( new osgViewer::WindowSizeHandler );
+    viewer.setCameraManipulator( new osgGA::TerrainManipulator );
     viewer.setSceneData( root.get() );
     viewer.setUpViewOnSingleScreen( 0 );
     return viewer.run();

@@ -137,14 +137,9 @@ public class SceneMeshRenderer : SceneComponent
     public string[] materials;
 }
 
-public class SceneSkinnedMeshRenderer : SceneComponent
+public class SceneSkinnedMeshRenderer : SceneMeshRenderer
 {
-    public string mesh;
     public string rootBone;
-    public bool enabled;
-    public bool castShadows;
-    public bool receiveShadows;
-    public string[] materials;
 }
 
 public class SceneKeyframe

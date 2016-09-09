@@ -184,6 +184,20 @@ public class SceneExporter : ScriptableObject
                 osgSubData += spaces + "  }\n";
                 numChildren++;
             }
+            else if ( component.type=="SkinnedMeshRenderer" )
+            {
+                SceneSkinnedMeshRenderer smr = (SceneSkinnedMeshRenderer)component;
+                osgSubData += spaces + "  Geode {\n"
+                            + ExportCommonAttr(smr.type, spaces + "  ")
+                            + subSpaces + "num_drawables 1\n";
+                
+                SceneMesh mesh = sceneData.resources.GetMesh(smr.mesh);
+                osgSubData += subSpaces + "Geometry {\n"
+                            + MeshExporter.ExportSkinnedGeometry(ref sceneData, ref smr, ref mesh, subSpaces + "  ")
+                            + subSpaces + "}\n";
+                osgSubData += spaces + "  }\n";
+                numChildren++;
+            }
             else
                 Debug.LogWarning( "[UnityToSceneBundle] Unknown sub-component type: " + component.type );
         }

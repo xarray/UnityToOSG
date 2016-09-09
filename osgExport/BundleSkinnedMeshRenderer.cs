@@ -35,6 +35,9 @@ public class BundleSkinnedMeshRenderer : BundleComponent
         sceneData.enabled = unityMeshRenderer.enabled;
         sceneData.castShadows = (unityMeshRenderer.shadowCastingMode != UnityEngine.Rendering.ShadowCastingMode.Off);
         sceneData.receiveShadows = unityMeshRenderer.receiveShadows;
+        sceneData.lightmapIndex = unityMeshRenderer.lightmapIndex;
+        sceneData.lightmapTilingOffset = unityMeshRenderer.lightmapScaleOffset;
+        
         sceneData.materials = new string[materials.Count];
         for ( int i=0; i<materials.Count; i++ )
         {

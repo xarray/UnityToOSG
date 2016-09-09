@@ -15,13 +15,30 @@ public class MeshExporter
     {
         string osgData = spaces + "useDisplayList TRUE\n"
                        + spaces + "useVertexBufferObjects FALSE\n";
-        
-        // Attach textures
         if ( smr!=null )
             osgData += MaterialExporter.ExportStateSet( ref sceneData, ref smr, spaces );
-        
+        osgData += ExportGeometryData( ref sceneData, ref mesh, spaces );
+        return osgData;
+    }
+    
+    public static string ExportSkinnedGeometry( ref SceneData sceneData, ref SceneSkinnedMeshRenderer smr,
+                                                ref SceneMesh mesh, string spaces )
+    {
+        string osgData = spaces + "useDisplayList TRUE\n"
+                       + spaces + "useVertexBufferObjects FALSE\n";
+        if ( smr!=null )
+        {
+            SceneMeshRenderer smr0 = (SceneMeshRenderer)smr;
+            osgData += MaterialExporter.ExportStateSet( ref sceneData, ref smr0, spaces );
+        }
+        osgData += ExportGeometryData( ref sceneData, ref mesh, spaces );
+        return osgData;
+    }
+    
+    private static string ExportGeometryData( ref SceneData sceneData, ref SceneMesh mesh, string spaces )
+    {
         // Add all primitive sets
-        osgData += spaces + "PrimitiveSets " + mesh.subMeshCount + " {\n";
+        string osgData = spaces + "PrimitiveSets " + mesh.subMeshCount + " {\n";
         for ( int i=0; i<mesh.subMeshCount; ++i )
         {
             int numElements = mesh.triangles[i].Length;
