@@ -79,8 +79,8 @@ int main( int argc, char** argv )
     if ( databasePath.empty() ) databasePath = ".";
     
     LightUniforms sceneLight;
-    sceneLight.color = new osg::Uniform("lightColor", osg::Vec3(1.0f, 1.0f, 0.9f));
-    sceneLight.direction = new osg::Uniform("lightDirection", osg::Vec3(0.5f, 0.5f, -0.5f));
+    sceneLight.color = new osg::Uniform("lightColor", osg::Vec3(1.0f, 1.0f, 1.0f));
+    sceneLight.direction = new osg::Uniform("lightDirection", osg::Vec3(-0.5f, 0.0f, 0.5f));
     
     // Build the scene graph
     osg::ref_ptr<osg::MatrixTransform> root = new osg::MatrixTransform;

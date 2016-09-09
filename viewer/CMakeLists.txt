@@ -55,6 +55,8 @@ SET(SOURCE_FILES
 SET(COMMON_SHADER_FILES
     Default.vert
     Default.frag
+    Terrain.vert
+    Terrain.frag
 )
 
 SET(LEGACY_SHADER_FILES

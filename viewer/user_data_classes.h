@@ -1,6 +1,7 @@
 #ifndef H_UNITY2OSG_USERDATACLASSES
 #define H_UNITY2OSG_USERDATACLASSES
 
+#include <osg/io_utils>
 #include <osg/Program>
 #include <osg/StateSet>
 #include <osgDB/ReadFile>
@@ -28,9 +29,12 @@ struct TerrainDataProxy : public osg::Geometry
     virtual const char* className() const { return "Terrain"; }
     
     std::vector<float> heightMap;
-    std::vector< std::vector<float> > alphaMaps;
+    std::vector<osg::Vec4ub> alphaMaps;
+    std::vector<std::string> splatTextures;
+    std::vector<osg::Vec4> splatTilingOffsets;
     osg::Vec2s heightMapSize, alphaMapSize;
     osg::Vec3 size;
+    int layers;
 };
 
 typedef std::map<ShaderDataProxy*, osg::StateSet*> ShaderDataProxyMap;
