@@ -142,6 +142,11 @@ public class SceneSkinnedMeshRenderer : SceneMeshRenderer
     public string rootBone;
 }
 
+public class SceneParticleSystem : SceneComponent
+{
+    // TODO
+}
+
 public class SceneKeyframe
 {
     public Vector3 pos;

@@ -39,6 +39,7 @@ public class BundleScene : BundleObject
         }
 
         // traverse the "root" game objects, collecting child game objects and components
+        Debug.Log( root.Count + " root game objects to export" );
         foreach ( var go in root )
         {
             scene.rootGameObjects.Add( Traverse(go) );

@@ -39,14 +39,16 @@ public class BundleComponent : BundleObject
     public static void QueryComponents( BundleGameObject jgo )
     {
         // for every registered conversion get that component
+        bool isQueried = false;
         foreach( KeyValuePair<Type, Type> pair in conversions )
         {
             Component[] components = jgo.unityGameObject.GetComponents(pair.Key);
+            if ( components.Length>0 ) isQueried = true;
+            
             foreach ( Component component in components )
             {
                 MeshRenderer meshRenderer = component as MeshRenderer;
-                if ( meshRenderer!=null && !meshRenderer.enabled )
-                    continue;
+                if ( meshRenderer!=null && !meshRenderer.enabled ) continue;
 
                 var jcomponent = Activator.CreateInstance(pair.Value) as BundleComponent;
                 if ( jcomponent==null )
@@ -57,6 +59,9 @@ public class BundleComponent : BundleObject
                 jgo.AddComponent( jcomponent );
             }
         }
+        
+        if ( !isQueried )
+            Debug.LogWarning( "Unregistered game object " + jgo.unityGameObject.name );
     }
 
     public static void RegisterConversion( Type componentType, Type exportType )
@@ -76,6 +81,7 @@ public class BundleComponent : BundleObject
         RegisterConversion(typeof(MeshCollider), typeof(BundleMeshCollider));
         RegisterConversion(typeof(Rigidbody), typeof(BundleRigidBody));
         RegisterConversion(typeof(Light), typeof(BundleLight));
+        RegisterConversion(typeof(ParticleSystem), typeof(BundleParticleSystem));
         RegisterConversion(typeof(TimeOfDay), typeof(BundleTimeOfDay));
     }
 

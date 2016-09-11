@@ -21,9 +21,12 @@ public class BundleTransform : BundleComponent
     {
         var sceneData = new SceneTransform();
         sceneData.type = "Transform";
-        sceneData.localPosition = unityTransform.localPosition;
-        sceneData.localRotation = unityTransform.localRotation;
-        sceneData.localScale = unityTransform.localScale;
+        if ( unityTransform!=null )
+        {
+            sceneData.localPosition = unityTransform.localPosition;
+            sceneData.localRotation = unityTransform.localRotation;
+            sceneData.localScale = unityTransform.localScale;
+        }
         return sceneData;
     }
 
