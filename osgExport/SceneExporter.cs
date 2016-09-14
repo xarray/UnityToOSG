@@ -158,6 +158,14 @@ public class SceneExporter : ScriptableObject
                 //SceneMeshCollider smc = (SceneMeshCollider)component;
                 // TODO
             }
+            else if ( component.type=="ParticleSystem" )
+            {
+                SceneParticleSystem sps = (SceneParticleSystem)component;
+                osgSubData += spaces + "  nwTools::ParticleSystem {\n"
+                            + ParticleExporter.ExportParticle(ref sceneData, ref sps, subSpaces)
+                            + spaces + "  }\n";
+                numChildren++;
+            }
             else if ( component.type=="Terrain" )
             {
                 SceneTerrain st = (SceneTerrain)component;

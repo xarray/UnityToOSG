@@ -144,7 +144,29 @@ public class SceneSkinnedMeshRenderer : SceneMeshRenderer
 
 public class SceneParticleSystem : SceneComponent
 {
-    // TODO
+    // Basic attributes
+    public float duration, playingSpeed;
+    public int maxParticles;
+    public bool isLooping, isAutoStarted;
+    public Vector3 gravity, rotation;
+    public Vector4 startAttributes;  // [life, size, speed, delay]
+    public Color startColor;
+    public string[] enabledModules;
+    
+    // Emission module  // TODO: bursts, curve data
+    public Vector4[] emissionRate;  // [time, value, inTangent, outTangent]
+    public string emissionType;
+    
+    // Texture Sheet Animation module  // TODO: curve data
+    public int tsaCycleCount;
+    public Vector2 tsaNumTiles;
+    public Vector4[] tsaFrameOverTime;  // [time, value, inTangent, outTangent]
+    public string tsaAnimationType;
+    
+    // Renderer module  // TODO: render as mesh
+    public Vector4 renderAttributes;  // [minSize, maxSize, normalDir, sortFudge]
+    public string renderShapeMode, renderSortMode;
+    public string renderMaterial;
 }
 
 public class SceneKeyframe
