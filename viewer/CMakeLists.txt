@@ -48,6 +48,7 @@ SET(SOURCE_FILES
     viewer.cpp
     shader_data.cpp
     terrain_data.cpp
+    particle_data.cpp
     utilities.cpp
     user_data_classes.h
 )
