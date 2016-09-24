@@ -6,8 +6,7 @@
 #include <osg/StateSet>
 #include <osgDB/ReadFile>
 #include <osgDB/WriteFile>
-#include <osgParticle/ParticleSystem>
-#include <osgParticle/ParticleSystemUpdater>
+#include "Particle.h"
 
 struct LightUniforms
 {
@@ -52,7 +51,6 @@ struct ParticleDataProxy : public osg::Geode
     osg::Vec3 gravity, rotation;
     osg::Vec4 startAttributes;  // [life, size, speed, delay]
     osg::Vec4 startColor;
-    std::vector<std::string> enabledModules;
     
     // Emission module  // TODO: bursts, curve data
     std::vector<osg::Vec4> emissionRate;  // [time, value, inTangent, outTangent]
@@ -65,17 +63,18 @@ struct ParticleDataProxy : public osg::Geode
     std::string tsaAnimationType;
     
     // Renderer module  // TODO: render as mesh
+    std::vector<std::string> renderTextures;
+    std::vector<osg::Vec4> renderTilingOffsets;
     osg::Vec4 renderAttributes;  // [minSize, maxSize, normalDir, sortFudge]
     std::string renderShapeMode, renderSortMode;
-    std::string renderMaterial;
 };
 
 typedef std::map<ShaderDataProxy*, osg::StateSet*> ShaderDataProxyMap;
 typedef std::map<TerrainDataProxy*, osg::Geode*> TerrainDataProxyMap;
-typedef std::map<ParticleDataProxy*, osgParticle::ParticleSystem*> ParticleDataProxyMap;
+typedef std::map<ParticleDataProxy*, osg::Group*> ParticleDataProxyMap;
 
 extern void applyUserShaders( ShaderDataProxyMap& sd, const std::string& dbPath );
 extern void applyUserTerrains( TerrainDataProxyMap& td, const std::string& dbPath );
-extern void applyUserParticles( ParticleDataProxyMap& pd, const std::string& dbPath );
+extern void applyUserParticles( ParticleDataProxyMap& pd, nwCore::SparkUpdatingHandler*, const std::string& dbPath );
 
 #endif

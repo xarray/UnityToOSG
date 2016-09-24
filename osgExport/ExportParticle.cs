@@ -29,7 +29,7 @@ public class ParticleExporter
             if ( moduleName=="Emission" )
             {
                 osgData += spaces + "  Type " + sps.emissionType + "\n"
-                         + spaces + "  Rate {\n";
+                         + spaces + "  Rate " + sps.emissionRate.Length + " {\n";
                 for ( int j=0; j<sps.emissionRate.Length; ++j )
                 {
                     Vector4 v = sps.emissionRate[j];
@@ -42,7 +42,7 @@ public class ParticleExporter
                 osgData += spaces + "  Type " + sps.tsaAnimationType + "\n"
                          + spaces + "  Tiles " + sps.tsaNumTiles.x + " " + sps.tsaNumTiles.y + "\n"
                          + spaces + "  CycleCount " + sps.tsaCycleCount + "\n"
-                         + spaces + "  FrameOverTime {\n";
+                         + spaces + "  FrameOverTime " + sps.tsaFrameOverTime.Length + " {\n";
                 for ( int j=0; j<sps.tsaFrameOverTime.Length; ++j )
                 {
                     Vector4 v = sps.tsaFrameOverTime[j];
@@ -58,7 +58,7 @@ public class ParticleExporter
                                                     + sps.renderAttributes.z + " " + sps.renderAttributes.w + "\n";
                 
                 SceneMaterial material = sceneData.resources.GetMaterial(sps.renderMaterial);
-                osgData += spaces + "  Material {\n";
+                osgData += spaces + "  Material " + material.textureIDs.Length + " {\n";
                 for ( int j=0; j<material.textureIDs.Length; ++j )
                 {
                     SceneTexture texture = sceneData.resources.GetTexture(material.textureIDs[j], false);

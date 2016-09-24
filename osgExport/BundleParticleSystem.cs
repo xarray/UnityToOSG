@@ -86,7 +86,7 @@ public class BundleParticleSystem : BundleComponent
         if ( curve==null ) curve = inputCurve.curveMin;
         if ( curve==null )
         {
-#if true
+#if false
             // FIXME: Unity limitation of reading MinMaxCurve
             if ( inputCurve.constantMax<=inputCurve.constantMin )
             {

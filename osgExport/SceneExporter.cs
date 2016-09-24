@@ -73,18 +73,18 @@ public class SceneExporter : ScriptableObject
         }
     }
     
-    private static string ExportCommonAttr( string name, string spaces )
+    private static string ExportCommonAttr( string name, string spaces, bool isCullingActive )
     {
         string osgData = spaces + "  DataVariance STATIC\n"
                        + spaces + "  name \"" + name + "\"\n"
                        + spaces + "  nodeMask 0xffffffff\n"
-                       + spaces + "  cullingActive TRUE\n";
+                       + spaces + "  cullingActive " + (isCullingActive ? "TRUE" : "FALSE") + "\n";
         return osgData;
     }
     
     private static string ExportHeaderOSG( ref SceneData sceneData )
     {
-        string osgData = "Group {\n" + ExportCommonAttr(sceneData.name, "")
+        string osgData = "Group {\n" + ExportCommonAttr(sceneData.name, "", true)
                        + "  num_children " + sceneData.hierarchy.Count + "\n";
         return osgData;
     }
@@ -120,7 +120,7 @@ public class SceneExporter : ScriptableObject
             Debug.LogWarning( "[UnityToSceneBundle] Unknown main component type: " + mainComponent.type );
         
         if ( needGlobalNodeType<0 ) osgData = spaces + "Node {\n";
-        osgData += ExportCommonAttr(gameObj.name, spaces)
+        osgData += ExportCommonAttr(gameObj.name, spaces, true)
                  + spaces + "  num_children ";
         
         // Traverse all components to add them to main component type
@@ -162,6 +162,7 @@ public class SceneExporter : ScriptableObject
             {
                 SceneParticleSystem sps = (SceneParticleSystem)component;
                 osgSubData += spaces + "  nwTools::ParticleSystem {\n"
+                            + ExportCommonAttr(sps.type, spaces + "  ", false)
                             + ParticleExporter.ExportParticle(ref sceneData, ref sps, subSpaces)
                             + spaces + "  }\n";
                 numChildren++;
@@ -170,7 +171,7 @@ public class SceneExporter : ScriptableObject
             {
                 SceneTerrain st = (SceneTerrain)component;
                 osgSubData += spaces + "  Geode {\n"
-                            + ExportCommonAttr(st.type, spaces + "  ")
+                            + ExportCommonAttr(st.type, spaces + "  ", true)
                             + subSpaces + "num_drawables 1\n";
                 osgSubData += subSpaces + "nwTools::Terrain {\n"
                             + TerrainExporter.ExportTerrain(ref sceneData, ref st, subSpaces + "  ")
@@ -182,7 +183,7 @@ public class SceneExporter : ScriptableObject
             {
                 SceneMeshRenderer smr = (SceneMeshRenderer)component;
                 osgSubData += spaces + "  Geode {\n"
-                            + ExportCommonAttr(smr.type, spaces + "  ")
+                            + ExportCommonAttr(smr.type, spaces + "  ", true)
                             + subSpaces + "num_drawables 1\n";
                 
                 SceneMesh mesh = sceneData.resources.GetMesh(smr.mesh);
@@ -196,7 +197,7 @@ public class SceneExporter : ScriptableObject
             {
                 SceneSkinnedMeshRenderer smr = (SceneSkinnedMeshRenderer)component;
                 osgSubData += spaces + "  Geode {\n"
-                            + ExportCommonAttr(smr.type, spaces + "  ")
+                            + ExportCommonAttr(smr.type, spaces + "  ", true)
                             + subSpaces + "num_drawables 1\n";
                 
                 SceneMesh mesh = sceneData.resources.GetMesh(smr.mesh);

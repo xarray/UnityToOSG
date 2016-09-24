@@ -41,7 +41,8 @@ FIND_PATH(OPENSCENEGRAPH_LIB_DIR libosg.so osg.lib
     /usr/local/lib
 )
 
-INCLUDE_DIRECTORIES(${OPENSCENEGRAPH_INCLUDE_DIR})
+FIND_PACKAGE(OpenGL)
+INCLUDE_DIRECTORIES(${OPENSCENEGRAPH_INCLUDE_DIR} ${OPENGL_INCLUDE_DIR})
 LINK_DIRECTORIES(${OPENSCENEGRAPH_LIB_DIR})
 
 SET(SOURCE_FILES
@@ -51,6 +52,11 @@ SET(SOURCE_FILES
     particle_data.cpp
     utilities.cpp
     user_data_classes.h
+    
+    Particle.h
+    Particle.cpp
+    spark/SPK_All.cpp
+    spark/SPK_GL_All.cpp
 )
 
 SET(COMMON_SHADER_FILES
@@ -78,6 +84,7 @@ TARGET_LINK_LIBRARIES(osgUnitySceneViewer
     debug osgUtil${CMAKE_DEBUG_POSTFIX}      optimized osgUtil
     debug osgViewer${CMAKE_DEBUG_POSTFIX}    optimized osgViewer
     debug OpenThreads${CMAKE_DEBUG_POSTFIX}  optimized OpenThreads
+    ${OPENGL_LIBRARIES}
 )
 INSTALL(TARGETS osgUnitySceneViewer RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 INSTALL(FILES ${COMMON_SHADER_FILES} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin/shaders)

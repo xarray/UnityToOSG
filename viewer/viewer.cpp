@@ -12,6 +12,55 @@
 #include <osgViewer/Viewer>
 #include "user_data_classes.h"
 
+#define GET_TEXTURE_ID( name, var ) \
+    GLuint var = 0; itr = textureIDMap.find(name); \
+    if ( itr!=textureIDMap.end() ) var = itr->second;
+SPK::SPK_ID createSmoke( const nwCore::SparkDrawable* spark, const nwCore::SparkDrawable::TextureIDMap& textureIDMap,
+                         int screenWidth, int screenHeight )
+{
+    nwCore::SparkDrawable::TextureIDMap::const_iterator itr;
+    GET_TEXTURE_ID( "smoke", textureParticle );
+    
+    SPK::GL::GLQuadRenderer* particleRenderer = SPK::GL::GLQuadRenderer::create();
+    particleRenderer->setTexturingMode( SPK::TEXTURE_2D );
+    particleRenderer->setAtlasDimensions( 2, 2 );
+    particleRenderer->setTexture( textureParticle );
+    particleRenderer->setTextureBlending( GL_MODULATE );
+    particleRenderer->setScale( 0.05f, 0.05f );
+    particleRenderer->setBlending( SPK::BLENDING_ADD );
+    particleRenderer->enableRenderingHint( SPK::DEPTH_WRITE, false );
+    
+    // Model
+    SPK::Model* particleModel = SPK::Model::create(
+        SPK::FLAG_SIZE | SPK::FLAG_ALPHA | SPK::FLAG_TEXTURE_INDEX | SPK::FLAG_ANGLE,
+        SPK::FLAG_SIZE | SPK::FLAG_ALPHA,
+        SPK::FLAG_SIZE | SPK::FLAG_TEXTURE_INDEX | SPK::FLAG_ANGLE );
+    particleModel->setParam( SPK::PARAM_SIZE, 0.5f, 1.0f, 10.0f, 20.0f );
+    particleModel->setParam( SPK::PARAM_ALPHA, 1.0f, 0.0f );
+    particleModel->setParam( SPK::PARAM_ANGLE, 0.0f, 2.0f * osg::PI );
+    particleModel->setParam( SPK::PARAM_TEXTURE_INDEX, 0.0f, 4.0f );
+    particleModel->setLifeTime( 2.0f, 5.0f );
+    
+    // Emitter
+    SPK::SphericEmitter* particleEmitter = SPK::SphericEmitter::create(
+        SPK::Vector3D(-1.0f, 0.0f, 0.0f), 0.0f, 0.1f * osg::PI );
+    particleEmitter->setZone( SPK::Point::create(SPK::Vector3D(0.0f, 0.015f, 0.0f)) );
+    particleEmitter->setFlow( 250.0 );
+    particleEmitter->setForce( 1.5f, 1.5f );
+    
+    // Group
+    SPK::Group* particleGroup = SPK::Group::create( particleModel, 500 );
+    particleGroup->addEmitter( particleEmitter );
+    particleGroup->setRenderer( particleRenderer );
+    particleGroup->setGravity( SPK::Vector3D(0.0f, 0.0f, 0.05f) );
+    particleGroup->enableAABBComputing( true );
+    
+    SPK::System* particleSystem = SPK::System::create();
+    particleSystem->addGroup( particleGroup );
+    particleSystem->enableAABBComputing( true );
+    return particleSystem->getSPKID();
+}
+
 class UserDataFinder : public osg::NodeVisitor
 {
 public:
@@ -25,6 +74,14 @@ public:
 
     virtual void apply( osg::Geode& node )
     {
+        ParticleDataProxy* pd = dynamic_cast<ParticleDataProxy*>(&node);
+        if ( pd && node.getNumParents()>0 )
+        {
+            particleDataMap[pd] = node.getParent(0);
+            traverse( node );
+            return;
+        }
+        
         for ( unsigned int i=0; i<node.getNumDrawables(); ++i )
         {
             osg::Geometry* geom = node.getDrawable(i)->asGeometry();
@@ -55,6 +112,7 @@ public:
     
     ShaderDataProxyMap shaderDataMap;
     TerrainDataProxyMap terrainDataMap;
+    ParticleDataProxyMap particleDataMap;
 };
 
 osg::Texture* createFallbackTexture( const osg::Vec4ub& color )
@@ -114,11 +172,18 @@ int main( int argc, char** argv )
     applyUserShaders( udf.shaderDataMap, databasePath );
     applyUserTerrains( udf.terrainDataMap, databasePath );
     
+    osg::ref_ptr<nwCore::SparkUpdatingHandler> sparkHandler = new nwCore::SparkUpdatingHandler;
+    applyUserParticles( udf.particleDataMap, sparkHandler.get(), databasePath );
+    viewer.addEventHandler( sparkHandler.get() );
+    
+    viewer.getCamera()->setComputeNearFarMode( osg::Camera::DO_NOT_COMPUTE_NEAR_FAR );
+    root->setInitialBound( osg::BoundingSphere(osg::Vec3(), 10.0f) );
+    
     // Start the viewer
     viewer.addEventHandler( new osgGA::StateSetManipulator(viewer.getCamera()->getOrCreateStateSet()) );
     viewer.addEventHandler( new osgViewer::StatsHandler );
     viewer.addEventHandler( new osgViewer::WindowSizeHandler );
-    viewer.setCameraManipulator( new osgGA::TerrainManipulator );
+    viewer.setCameraManipulator( new osgGA::TrackballManipulator );
     viewer.setSceneData( root.get() );
     viewer.setUpViewOnSingleScreen( 0 );
     return viewer.run();
